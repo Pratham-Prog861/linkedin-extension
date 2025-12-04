@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedIn Job Post Scanner</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12" y2="16"></line>
+        </svg>
+      </div>
+
+      <div class="header-actions">
+        <button id="startAutoScan" class="btn btn-primary">
+          Start Auto-Search
+        </button>
+        <button id="stopAutoScan" class="btn btn-secondary hidden">
+          Stop Search
+        </button>
+      </div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <span class="stat-label">Total Detected</span>
+        <span class="stat-value" id="detectedCount">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Status</span>
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span id="statusText">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TOGGLE -->
+    <button id="settings-toggle" class="settings-toggle-btn">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+      </svg>
+      Settings
+    </button>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settings-panel" class="settings-panel hidden">
+      <div class="settings-header">
+        <h3>AI Settings</h3>
+      </div>
+      <div class="setting-item">
+        <label for="ai-enabled">
+          <input type="checkbox" id="ai-enabled" checked />
+          Enable AI Analysis
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="api-key">Gemini API Key</label>
+        <input
+          type="text"
+          id="api-key"
+          placeholder="Enter your Gemini API key"
+        />
+        <button id="save-api-key" class="btn btn-primary btn-sm">
+          Save Key
+        </button>
+        <div id="api-status" class="status-msg"></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div id="scanProgress" class="scan-progress hidden">
+      <div class="progress-label">
+        Scanning: <span id="currentKeyword">...</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <!-- LEADS FOUND -->
+    <div class="section-title">LEADS FOUND</div>
+
+    <div class="detections-list" id="detectionsList">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#cbd5e1"
+            stroke-width="1"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <p>No hiring posts detected yet</p>
+        <p class="sub-text">Start Auto-Search to find leads</p>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+      <button id="manualScanBtn" class="btn btn-primary">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Scan Current Page
+      </button>
+    </div>
+
+    <div class="actions">
+      <button id="resetBtn" class="btn btn-secondary">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+          <path d="M21 3v5h-5"></path>
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+          <path d="M3 21v-5h5"></path>
+        </svg>
+        Reset Stats
+      </button>
+
+      <button id="openLinkedInBtn" class="btn btn-primary">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+          ></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+        Open LinkedIn
+      </button>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <small>v1.1.0 • Auto-Search Enabled</small>
+    </div>
+
+    <!-- SCRIPT -->
+    <script src="popup.js"></script>
+  </body>
+</html>
