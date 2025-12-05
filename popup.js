@@ -150,7 +150,9 @@ function setupEventListeners() {
             }
         } else {
             // Set default API key
-            const defaultKey = 'AIzaSyBpCXbOB5UzuqpgPlVkj0f-Cj3DNoM5oh0';
+            chrome.storage.sync.get(['geminiApiKey'], (result) => {
+    const defaultKey = result.geminiApiKey || '';
+});
             if (apiKeyInput) apiKeyInput.value = defaultKey;
             chrome.storage.sync.set({ geminiApiKey: defaultKey }, () => {
                 if (apiStatus) {

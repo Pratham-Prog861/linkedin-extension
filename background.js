@@ -62,7 +62,10 @@ const SEARCH_KEYWORDS = [
 /**
  * AI Service for analyzing posts using Gemini
  */
-const DEFAULT_API_KEY = 'AIzaSyBpCXbOB5UzuqpgPlVkj0f-Cj3DNoM5oh0';
+let DEFAULT_API_KEY = '';
+chrome.storage.sync.get(['geminiApiKey'], (result) => {
+    DEFAULT_API_KEY = result.geminiApiKey || '';
+});
 
 const AiService = {
     async analyzePost(text, apiKey) {
